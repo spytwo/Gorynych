@@ -1,7 +1,13 @@
-# Gorynysh
+# Gorynych
 
-A game where you need to make words out of letters and compete with other players.
-Запуск проекта через uv:
-Склонировать
-uv sync
-uv run gorynych_project/manage.py runserver
+Word puzzle game where players construct words from a given set of letters and compete for top scores.
+
+---
+
+## 🚀 Запуск проекта
+
+Для управления зависимостями и окружением в проекте используется uv
+
+### 1. Клонирование репозитория
+### 2. Установка зависимостей: uv sync
+### 3. Запуск сервера: uv run gorynych_project/manage.py runserver
