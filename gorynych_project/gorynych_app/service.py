@@ -1,12 +1,31 @@
 import random
+from collections import Counter
 
 from .models import Statictics, UserGame, Word
 
-consonant_letters = ["Б", "В", "Г", "Д", "К", "Л", "М", "Н", "П", "Р", "С", "Т", "У"]
-vowel_letters = ["А", "Е", "И", "О", "Я"]
-rare_letters = ["Ф", "Х", "Ц", "Ч", "Ж", "З", "Ю"]
-the_rarest = ["Й", "Щ", "Ь", "Ё", "Ы", "Э", "Ш"]
-first_phrase = [
+CONSONANT_LETTERS = [
+    "Б",
+    "В",
+    "Г",
+    "Д",
+    "К",
+    "Л",
+    "М",
+    "Н",
+    "П",
+    "Р",
+    "С",
+    "Т",
+    "У",
+]
+
+VOWEL_LETTERS = ["А", "Е", "И", "О", "Я"]
+
+RARE_LETTERS = ["Ф", "Х", "Ц", "Ч", "Ж", "З", "Ю"]
+
+THE_RAREST_LETTERS = ["Й", "Щ", "Ь", "Ё", "Ы", "Э", "Ш"]
+
+FIRST_PHRASES = [
     "Круто!",
     "Фантастика!",
     "Невероятно!",
@@ -16,7 +35,8 @@ first_phrase = [
     "Вы молодец!",
     "Отлично!",
 ]
-second_phrase = [
+
+SECOND_PHRASES = [
     "Держите голову",
     "Награждаетесь головой",
     "Голова уже на месте",
@@ -25,41 +45,43 @@ second_phrase = [
     "Плюс голова",
     "Даю вам голову",
 ]
-third_phrase = [
+
+THIRD_PHRASES = [
     "Но голову дать не могу.",
     "Но к сожалению, без добавления головы.",
     "Но без головы в этот раз.",
 ]
-fourth_phrase = [
+
+FOURTH_PHRASES = [
     "У Горыныча все головы на месте",
     "Голов у Горыныча полный комплект",
     "Горыныч в полном составе",
 ]
 
+MAX_HEADS = 3
+WORDS_FOR_HEAD = 20
+LONG_WORD_LENGTH = 5
+
 
 def get_rec():
-    """Получает список рекордов из БД"""
-    r = [(i.user, i.record, i.game_for_record) for i in UserGame.objects.all()]
-    r.sort(key=lambda x: x[1], reverse=True)
-    return r
+    """Возвращает список рекордов пользователей."""
+    records = [
+        (game.user, game.record, game.game_for_record)
+        for game in UserGame.objects.all()
+    ]
+    return sorted(records, key=lambda record: record[1], reverse=True)
 
 
 def comp_words():
-    """Возвращает множество, составленное из слов из БД"""
-    res = {i.word for i in Word.objects.all()}
-    return res
+    """Возвращает множество слов из БД."""
+    return {word.word for word in Word.objects.all()}
 
 
 class Words:
     def __init__(self):
-        self.deck = (
-            random.sample(consonant_letters, 6)
-            + random.sample(vowel_letters, 3)
-            + random.sample(rare_letters, 1)
-            + random.sample(the_rarest, 1)
-        )
-        self.number_user = 3
-        self.number_comp = 3
+        self.deck = self._create_deck()
+        self.number_user = MAX_HEADS
+        self.number_comp = MAX_HEADS
         self.players_word_list = []
         self.comp_word_list = set()
         self.final_comp_word_list = set()
@@ -69,115 +91,166 @@ class Words:
         self.words_without_repeating_user = []
         self.words_without_repeating_comp = []
 
-    def checking_for_all_letters(self, w: str):
-        w = w.strip()
-        """ Проверка слова игрока """
-        if w in self.players_word_list:
+    @staticmethod
+    def _create_deck():
+        return (
+            random.sample(CONSONANT_LETTERS, 6)
+            + random.sample(VOWEL_LETTERS, 3)
+            + random.sample(RARE_LETTERS, 1)
+            + random.sample(THE_RAREST_LETTERS, 1)
+        )
+
+    def checking_for_all_letters(self, word: str):
+        """Проверяет слово игрока и изменяет состояние игры."""
+        word = word.strip()
+
+        if word in self.players_word_list:
             return "Такое слово уже есть"
-        dict_of_letters = {}
-        for i in w:
-            if i not in self.deck:
-                return f'Буквы "{i}" нет в колоде'
-            elif i not in dict_of_letters:
-                dict_of_letters[i] = 1
-            else:
-                dict_of_letters[i] += 1
-        sum_letters = sum(dict_of_letters.values())  # Количество всех символов
-        count_letters = len(dict_of_letters)  # Количество уникальных символов
-        if self.number_user == 0 and sum_letters > count_letters:
+
+        letter_counts = Counter(word)
+
+        missing_letter = next(
+            (letter for letter in word if letter not in self.deck),
+            None,
+        )
+        if missing_letter:
+            return f'Буквы "{missing_letter}" нет в колоде'
+
+        repeated_letters = sum(letter_counts.values()) - len(letter_counts)
+
+        error = self._check_heads(repeated_letters)
+        if error:
+            return error
+
+        self._add_player_word(word, repeated_letters)
+
+        return self._get_word_reward(word)
+
+    def _check_heads(self, repeated_letters):
+        """Проверяет, хватает ли голов Горыныча для слова."""
+        if self.number_user == 0 and repeated_letters > 0:
             return "Горыныч без голов"
-        if self.number_user < sum_letters - count_letters:
+
+        if self.number_user < repeated_letters:
             return "Для этого слова не хватает голов у Горыныча"
-        else:
-            self.temp = (
-                sum_letters - count_letters
-            )  # Количество использованных голов Горыныча в данном слове
-            self.number_user -= self.temp
-            if self.temp != 0:
-                self.gorynych_user.append(w)
-        self.players_word_list.append(w)
-        # Прибавление головы Горыныча за длинные слова без повторов
-        if self.temp == 0:
-            if len(w) > 5:
-                # Когда три головы и добавляется длинное слово
-                if self.number_user == 3:
-                    self.temp += 1
-                    self.words_without_repeating_user.append(w)
-                    # Возвращается случайная фраза без прибавления головы
-                    return f"{random.choice(first_phrase)} {random.choice(third_phrase)} {random.choice(fourth_phrase)}"
-                elif self.number_user < 3:
-                    self.number_user += 1
-                self.words_without_repeating_user.append(w)
-                # Возвращается случайная фраза с прибавлением головы
-                return f"{random.choice(first_phrase)} {random.choice(second_phrase)}"
-        if len(self.players_word_list) % 20 == 0 and self.number_user < 3:
+
+        return None
+
+    def _add_player_word(self, word, repeated_letters):
+        """Добавляет слово игрока и списывает использованные головы."""
+        self.temp = repeated_letters
+        self.number_user -= repeated_letters
+        self.players_word_list.append(word)
+
+        if repeated_letters:
+            self.gorynych_user.append(word)
+
+    def _get_word_reward(self, word):
+        """Обрабатывает награду за длинное слово без повторяющихся букв."""
+        if self.temp != 0:
+            return None
+
+        if len(word) > LONG_WORD_LENGTH:
+            self.words_without_repeating_user.append(word)
+
+            if self.number_user == MAX_HEADS:
+                self.temp = 1
+                return self._no_head_reward()
+
             self.number_user += 1
-            return "Вы вернули одну голову"
+            return self._head_reward()
+
+        if len(self.players_word_list) % WORDS_FOR_HEAD == 0:
+            if self.number_user < MAX_HEADS:
+                self.number_user += 1
+                return "Вы вернули одну голову"
+
+        return None
+
+    @staticmethod
+    def _head_reward():
+        return f"{random.choice(FIRST_PHRASES)} {random.choice(SECOND_PHRASES)}"
+
+    @staticmethod
+    def _no_head_reward():
+        return (
+            f"{random.choice(FIRST_PHRASES)} "
+            f"{random.choice(THIRD_PHRASES)} "
+            f"{random.choice(FOURTH_PHRASES)}"
+        )
 
     def words_of_comp(self):
-        """Первая проверка слова компьютера"""
+        """Первая проверка слов компьютера."""
         for word in comp_words():
-            for letter in word.upper():
-                if letter not in self.deck:
-                    break
-            else:
-                self.comp_word_list.add(word.upper())
+            word = word.upper()
+
+            if all(letter in self.deck for letter in word):
+                self.comp_word_list.add(word)
 
     def check_words_of_comp(self):
-        """Вторая проверка слова компьютера"""
+        """Вторая проверка слов компьютера."""
         for word in self.comp_word_list:
-            dict_of_letters_comp = {}
-            for letter in word:
-                if letter not in dict_of_letters_comp:
-                    dict_of_letters_comp[letter] = 1
-                else:
-                    dict_of_letters_comp[letter] += 1
-            # Количество букв в слове
-            sum_letters = sum(dict_of_letters_comp.values())
-            # Количество уникальных букв в слове
-            count_letters = len(dict_of_letters_comp)
-            if self.number_comp == 0 and sum_letters > count_letters:
+            repeated_letters = self._count_repeated_letters(word)
+
+            if not self._can_comp_use_word(repeated_letters):
                 continue
-            if self.number_comp < sum_letters - count_letters:
-                continue
-            else:
-                # Если у Горыныча компа есть головы
-                self.number_comp -= sum_letters - count_letters
-                # Если слово с повторами букв
-                if sum_letters - count_letters != 0:
-                    # Добавляем с список Горынычей компа
-                    self.gorynych_comp.append(word)
-                # Если слово длинее 5 букв и без повторов
-                if sum_letters - count_letters == 0 and sum_letters > 5:
-                    # Добавляем в список слов без повторов Горыныча
-                    self.words_without_repeating_comp.append(word)
-                    # Добавляем Горынычу компа одну голову
-                    self.number_comp += 1
+
+            self._use_comp_heads(word, repeated_letters)
             self.final_comp_word_list.add(word)
 
+    @staticmethod
+    def _count_repeated_letters(word):
+        letter_counts = Counter(word)
+        return len(word) - len(letter_counts)
+
+    def _can_comp_use_word(self, repeated_letters):
+        if self.number_comp == 0 and repeated_letters > 0:
+            return False
+
+        return self.number_comp >= repeated_letters
+
+    def _use_comp_heads(self, word, repeated_letters):
+        self.number_comp -= repeated_letters
+
+        if repeated_letters:
+            self.gorynych_comp.append(word)
+            return
+
+        if len(word) > LONG_WORD_LENGTH:
+            self.words_without_repeating_comp.append(word)
+            self.number_comp += 1
+
     def who_won(self):
-        """Определяет победителя"""
-        if len(self.players_word_list) < len(self.final_comp_word_list):
+        """Определяет победителя."""
+        player_words = len(self.players_word_list)
+        computer_words = len(self.final_comp_word_list)
+
+        if player_words < computer_words:
             return "Вы проиграли", "проиграл(а)"
-        if len(self.players_word_list) == len(self.final_comp_word_list):
+
+        if player_words == computer_words:
             return "Ничья", "Ничья"
+
         return "Вы победили!", "победил(а)"
 
     def all_gorynych_comp(self):
-        """Вовращает полный список слов-голов Горыныча"""
-        set_final = self.final_comp_word_list
-        set_first = self.comp_word_list
-        all_word = set_first - set_final
-        return list(all_word)
+        """Возвращает слова, которые могли бы использовать головы Горыныча."""
+        return list(self.comp_word_list - self.final_comp_word_list)
 
     def update_statistics(self, user):
-        """Обновляет количество побед, ничьих, поражений"""
+        """Обновляет статистику пользователя."""
         stat = Statictics.objects.get(user_id=user)
+
+        player_words = len(self.players_word_list)
+        computer_words = len(self.final_comp_word_list)
+
         stat.number_of_games += 1
-        if len(self.players_word_list) < len(self.final_comp_word_list):
+
+        if player_words < computer_words:
             stat.defeat += 1
-        if len(self.players_word_list) == len(self.final_comp_word_list):
+        elif player_words == computer_words:
             stat.dead_heat += 1
-        if len(self.players_word_list) > len(self.final_comp_word_list):
+        else:
             stat.victory += 1
+
         stat.save()
