@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 
 [[package]]
 name = "asgiref"
@@ -13,16 +13,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "4.2.6"
+version = "4.2.30"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/7b/f47d10d870fabfcaa1fba403460a4e482ab7dbba4d715d43981d1f8c8d85/Django-4.2.6.tar.gz", hash = "sha256:08f41f468b63335aea0d904c5729e0250300f6a1907bf293a65499496cdbc68f", size = 10407018, upload-time = "2023-10-04T14:58:41.808Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/11/b5/f1a53dc68da6429d6e0345bb848161e2381a2e9f02700148911e8582c2b3/django-4.2.30.tar.gz", hash = "sha256:4ebc7a434e3819db6cf4b399fb5b3f536310a30e8486f08b66886840be84b37c", size = 10468707, upload-time = "2026-04-07T14:05:45.57Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b9/45/707dfc56f381222c1c798503546cb390934ab246fc45b5051ef66e31099c/Django-4.2.6-py3-none-any.whl", hash = "sha256:a64d2487cdb00ad7461434320ccc38e60af9c404773a2f95ab0093b4453a3215", size = 7990607, upload-time = "2023-10-04T14:58:34.647Z" },
+    { url = "https://files.pythonhosted.org/packages/39/b7/a7c96f239cf91313a6589233fed55111c7063b26683b226802732c455dbc/django-4.2.30-py3-none-any.whl", hash = "sha256:4d07aaf1c62f9984842b67c2874ebbf7056a17be253860299b93ae1881faad65", size = 7997231, upload-time = "2026-04-07T14:05:38.241Z" },
 ]
 
 [[package]]
@@ -37,25 +37,25 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "django", specifier = "==4.2.6" },
-    { name = "sqlparse", specifier = "==0.4.4" },
-    { name = "tzdata", specifier = "==2023.3" },
+    { name = "django", specifier = ">=4.2,<5.0" },
+    { name = "sqlparse", specifier = ">=0.5.0" },
+    { name = "tzdata", specifier = ">=2024.1" },
 ]
 
 [[package]]
 name = "sqlparse"
-version = "0.4.4"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/65/16/10f170ec641ed852611b6c9441b23d10b5702ab5288371feab3d36de2574/sqlparse-0.4.4.tar.gz", hash = "sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c", size = 72383, upload-time = "2023-04-18T08:30:41.994Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/d3/3f06a1006f2261d1342aefb3c71eed02f5d4ca5bdbecd86ebc12ad38306e/sqlparse-0.6.0.tar.gz", hash = "sha256:113c35c75365ab9cc9c7231d68c6428fb11c085fc8e9eb1ad659b7ddbf6cd2b9", size = 178477, upload-time = "2026-08-13T19:16:06.396Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/5a/66d7c9305baa9f11857f247d4ba761402cea75db6058ff850ed7128957b7/sqlparse-0.4.4-py3-none-any.whl", hash = "sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3", size = 41183, upload-time = "2023-04-18T08:30:36.96Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/50/f00935da0ec7cbf325f8dc4f772ae46fbc7b672dd62876e73f0a94adda57/sqlparse-0.6.0-py3-none-any.whl", hash = "sha256:b861c0288ce2fa56209a9a6412d2e066ac664b3873b89c26c9d8415e8e32996f", size = 50070, upload-time = "2026-08-13T19:16:04.062Z" },
 ]
 
 [[package]]
 name = "tzdata"
-version = "2023.3"
+version = "2026.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/70/e5/81f99b9fced59624562ab62a33df639a11b26c582be78864b339dafa420d/tzdata-2023.3.tar.gz", hash = "sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a", size = 187483, upload-time = "2023-03-29T01:41:04.086Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/92/ff/5a28bdfd8c3ebec42564ac7d0e54ca3db65044a9314a97f9564fa7a1e926/tzdata-2026.3.tar.gz", hash = "sha256:4a1518b8993086a7982523e071643f3c0e5f213e75b21318e78bcabfff9d1415", size = 198674, upload-time = "2026-07-10T08:50:37.887Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/fb/a79efcab32b8a1f1ddca7f35109a50e4a80d42ac1c9187ab46522b2407d7/tzdata-2023.3-py2.py3-none-any.whl", hash = "sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda", size = 341835, upload-time = "2023-03-29T01:41:02.776Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/6d/b53b99a9f2766d095985947a5782f1702cabb129a34f7a802d7197af832f/tzdata-2026.3-py2.py3-none-any.whl", hash = "sha256:dc096730c87af6cab1b171c9d532be840741ff5d459015e7f6947bd7d7e54931", size = 348168, upload-time = "2026-07-10T08:50:36.46Z" },
 ]
