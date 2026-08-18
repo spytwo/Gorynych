@@ -4,24 +4,24 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gorynych_app', '0007_alter_usergame_user'),
+        ("gorynych_app", "0007_alter_usergame_user"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='usergame',
-            options={'verbose_name': 'Игра игрока', 'verbose_name_plural': 'Игры игроков'},
+            name="usergame",
+            options={
+                "verbose_name": "Игра игрока",
+                "verbose_name_plural": "Игры игроков",
+            },
         ),
         migrations.AlterModelManagers(
-            name='record',
-            managers=[
-            ],
+            name="record",
+            managers=[],
         ),
         migrations.AlterModelManagers(
-            name='usergame',
-            managers=[
-            ],
+            name="usergame",
+            managers=[],
         ),
     ]

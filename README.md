@@ -10,4 +10,4 @@ Word puzzle game where players construct words from a given set of letters and c
 
 ### 1. Клонирование репозитория
 ### 2. Установка зависимостей: uv sync
-### 3. Запуск сервера: uv run gorynych_project/manage.py runserver
+### 3. Запуск сервера: uv run python gorynych_project/manage.py runserver

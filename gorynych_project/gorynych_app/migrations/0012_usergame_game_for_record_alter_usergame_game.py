@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gorynych_app', '0011_alter_usergame_user'),
+        ("gorynych_app", "0011_alter_usergame_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='usergame',
-            name='game_for_record',
+            model_name="usergame",
+            name="game_for_record",
             field=models.BinaryField(null=True),
         ),
         migrations.AlterField(
-            model_name='usergame',
-            name='game',
+            model_name="usergame",
+            name="game",
             field=models.BinaryField(null=True),
         ),
     ]

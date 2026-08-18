@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gorynych_app', '0008_alter_usergame_options_alter_record_managers_and_more'),
+        ("gorynych_app", "0008_alter_usergame_options_alter_record_managers_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='usergame',
-            name='record',
+            model_name="usergame",
+            name="record",
             field=models.IntegerField(default=0),
         ),
     ]

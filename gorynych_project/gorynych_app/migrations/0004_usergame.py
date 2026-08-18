@@ -4,17 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gorynych_app', '0003_record'),
+        ("gorynych_app", "0003_record"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserGame',
+            name="UserGame",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('game', models.BinaryField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("game", models.BinaryField()),
             ],
         ),
     ]

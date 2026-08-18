@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.12"
+requires-python = "==3.13.*"
 
 [[package]]
 name = "asgiref"
@@ -37,7 +37,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "django", specifier = ">=4.2,<5.0" },
+    { name = "django", specifier = "==4.2.30" },
     { name = "sqlparse", specifier = ">=0.5.0" },
     { name = "tzdata", specifier = ">=2024.1" },
 ]

@@ -1,12 +1,14 @@
+import pickle
+
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, redirect
-from .forms import UserRegForm, UserLoginForm
-from .models import UserGame, Statictics, Record
+from django.shortcuts import redirect, render
+
+from .forms import UserLoginForm, UserRegForm
+from .models import Record, Statictics, UserGame
 from .service import Words, get_rec
-from django.contrib import messages
-import pickle
 
 
 def index(request):
@@ -17,18 +19,18 @@ def index(request):
         game = pickle.loads(games.game)
     except ObjectDoesNotExist:
         # Если игрок не авторизован, то отправляется на страницу авторизации
-        return redirect('login')
-    context = {'game': game}
-    if request.method == 'POST' and 'add' in request.POST:
+        return redirect("login")
+    context = {"game": game}
+    if request.method == "POST" and "add" in request.POST:
         # При нажатии ДОБАВИТЬ
-        word = request.POST.get('word').upper()
+        word = request.POST.get("word").upper()
         res = game.checking_for_all_letters(word)
-        new_context = {'res': res} | context
+        new_context = {"res": res} | context
         # обновляем состояние игры в БД
         games.game = pickle.dumps(game)
         games.save()
-        return render(request, 'gorynych_app/index.html', context=new_context)
-    if request.method == 'POST' and 'cancel' in request.POST:
+        return render(request, "gorynych_app/index.html", context=new_context)
+    if request.method == "POST" and "cancel" in request.POST:
         # При нажатии УБРАТЬ
         # Убрать голову Горыныча если удалил 20-е слово, за которое ее дали
         if len(game.players_word_list) % 20 == 0:
@@ -38,12 +40,11 @@ def index(request):
                 game.number_user -= 1
             game.temp = 0
         elif len(game.players_word_list) >= 1:
-            if len(game.players_word_list[-1]) > 5 and len(game.players_word_list[-1]) == len(
-                    set(game.players_word_list[-1])):
+            if len(game.players_word_list[-1]) > 5 and len(
+                game.players_word_list[-1]
+            ) == len(set(game.players_word_list[-1])):
                 # Когда уже было три головы и последнее слово длинное, которое нужно удалить
-                if game.number_user == 3 and game.temp == 1:
-                    game.number_user -= 1
-                elif game.number_user > 0:
+                if game.number_user == 3 and game.temp == 1 or game.number_user > 0:
                     game.number_user -= 1
             game.number_user += game.temp  # Возврат Горыныча при отмене слова
             w = game.players_word_list.pop()
@@ -58,12 +59,12 @@ def index(request):
         # обновляем состояние игры в БД
         games.game = pickle.dumps(game)
         games.save()
-    if request.method == 'POST' and 'count' in request.POST:
+    if request.method == "POST" and "count" in request.POST:
         # При нажатии ПОСЧИТАТЬ
-        res = f'Количество ваших слов: {len(game.players_word_list)}'
-        new_context = {'res': res} | context
-        return render(request, 'gorynych_app/index.html', context=new_context)
-    if request.method == 'POST' and 'check' in request.POST:
+        res = f"Количество ваших слов: {len(game.players_word_list)}"
+        new_context = {"res": res} | context
+        return render(request, "gorynych_app/index.html", context=new_context)
+    if request.method == "POST" and "check" in request.POST:
         # При нажатии ЗАКОНЧИТЬ ИГРУ
         game.words_of_comp()
         game.check_words_of_comp()
@@ -89,7 +90,7 @@ def index(request):
 
         # Делаем копию состояния игры для фронта
         game_2 = game
-        new_context = {'game_2': game_2}
+        new_context = {"game_2": game_2}
         # Если самый большой рекорд, то сохраняем
         if len(game.players_word_list) > games.record:
             # Сохраняем число рекорд
@@ -103,71 +104,72 @@ def index(request):
         games.save()
         # games.game = pickle.dumps(game)
         # games.save()
-        return render(request, 'gorynych_app/final.html', context=new_context)
-    if request.method == 'POST' and 'end' in request.POST:
+        return render(request, "gorynych_app/final.html", context=new_context)
+    if request.method == "POST" and "end" in request.POST:
         # При нажатии НОВАЯ ИГРА
         # Создаем новую игру
         games.game = pickle.dumps(Words())
         games.save()
-        return redirect('index')
-    if request.method == 'POST' and 'doc' in request.POST:
+        return redirect("index")
+    if request.method == "POST" and "doc" in request.POST:
         # При нажатии ПРАВИЛА
-        return render(request, 'gorynych_app/rules.html', context=context)
-    if request.method == 'POST' and 'logout' in request.POST:
+        return render(request, "gorynych_app/rules.html", context=context)
+    if request.method == "POST" and "logout" in request.POST:
         # При нажатии ВЫЙТИ ИЗ АККАУНТА
         user_logout(request)
-        return redirect('login')
-    if request.method == 'POST' and 'rec' in request.POST:
+        return redirect("login")
+    if request.method == "POST" and "rec" in request.POST:
         # При нажатии РЕКОРДЫ
-        new_context = {'get_rec': get_rec,
-                       'user': games.user} | context
-        return render(request, 'gorynych_app/rec.html', context=new_context)
-    return render(request, 'gorynych_app/index.html', context=context)
+        new_context = {"get_rec": get_rec, "user": games.user} | context
+        return render(request, "gorynych_app/rec.html", context=new_context)
+    return render(request, "gorynych_app/index.html", context=context)
 
 
 def register(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserRegForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, 'Успешная регистрация')
-            UserGame.objects.create(game=pickle.dumps(Words()), user_id=User.objects.get(username=user).id)
+            messages.success(request, "Успешная регистрация")
+            UserGame.objects.create(
+                game=pickle.dumps(Words()), user_id=User.objects.get(username=user).id
+            )
             Statictics.objects.create(user_id=User.objects.get(username=user).id)
             Record.objects.create(user_id=User.objects.get(username=user).id)
-            return redirect('index')
+            return redirect("index")
         else:
-            messages.error(request, 'Что-то пошло не так')
+            messages.error(request, "Что-то пошло не так")
     else:
         form = UserRegForm()
-    context = {'form': form}
-    return render(request, 'gorynych_app/register.html', context=context)
+    context = {"form": form}
+    return render(request, "gorynych_app/register.html", context=context)
 
 
 def user_login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserLoginForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('index')
+            return redirect("index")
     else:
         form = UserLoginForm()
-    context = {'form': form}
-    return render(request, 'gorynych_app/login.html', context=context)
+    context = {"form": form}
+    return render(request, "gorynych_app/login.html", context=context)
 
 
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect("login")
 
 
 def get_record_html(request, user):
-    """ Получение деталей игры игрока в рейтинге """
+    """Получение деталей игры игрока в рейтинге"""
     games = UserGame.objects.get(user_id=User.objects.get(username=user).id)
     game = pickle.loads(games.game_for_record)
-    context = {'game': game, 'user': games.user}
-    return render(request, 'gorynych_app/game_detail.html', context=context)
+    context = {"game": game, "user": games.user}
+    return render(request, "gorynych_app/game_detail.html", context=context)
 
 
 def statistics(request, user):
@@ -176,5 +178,5 @@ def statistics(request, user):
     rec = Record.objects.get(user_id=user.id)
     list_rec = [rec.record_1, rec.record_2, rec.record_3]
     list_rec.sort(reverse=True)
-    context = {'stat': stat, 'user': user, 'list_rec': list_rec}
-    return render(request, 'gorynych_app/statistics.html', context=context)
+    context = {"stat": stat, "user": user, "list_rec": list_rec}
+    return render(request, "gorynych_app/statistics.html", context=context)

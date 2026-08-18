@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gorynych_app', '0017_record'),
+        ("gorynych_app", "0017_record"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='record',
-            old_name='record',
-            new_name='record_1',
+            model_name="record",
+            old_name="record",
+            new_name="record_1",
         ),
         migrations.AddField(
-            model_name='record',
-            name='record_2',
-            field=models.IntegerField(default=0, verbose_name='Рекорд'),
+            model_name="record",
+            name="record_2",
+            field=models.IntegerField(default=0, verbose_name="Рекорд"),
         ),
         migrations.AddField(
-            model_name='record',
-            name='record_3',
-            field=models.IntegerField(default=0, verbose_name='Рекорд'),
+            model_name="record",
+            name="record_3",
+            field=models.IntegerField(default=0, verbose_name="Рекорд"),
         ),
     ]
