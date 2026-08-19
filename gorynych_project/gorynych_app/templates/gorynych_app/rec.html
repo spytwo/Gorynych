@@ -1,44 +1,97 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
     <title>Рейтинг игроков</title>
     <link rel="icon" type="image/png" href="{% static 'img/gor1.png' %}">
+
 </head>
+
 <body>
-    <h1>Рейтинг игроков</h1>
-    <div style="text-align: center;">
-        <table width="330" border="1" cellspacing="0" cellpadding="7" style="display: inline-block;">
-        <tr>
-            <th width="270">Игрок</th>
-            <th width="60">Рекорд</th>
-        </tr>
+
+<div class="rating-container">
+
+    <h1 class="rating-title">Рейтинг игроков</h1>
+
+    <p class="rating-description">
+        Нажмите на имя игрока, чтобы посмотреть статистику.
+        Нажмите на рекорд, чтобы посмотреть сохранённую игру.
+    </p>
+
+    <table class="rating-table">
+        <thead>
+            <tr>
+                <th>Игрок</th>
+                <th>Рекорд</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
         {% for i in get_rec %}
+
             {% if i.0 == user %}
-        <tr>
-            <td><b><a href="{% url 'statistics' user=i.0 %}">{{ i.0 }}</a></b></td>
-                {% if i.1 > 0 %}
-                <td><b><a href="{% url 'get_record_html' user=i.0 %}">{{ i.1 }}</a></b></td>
-                {% else %}
-                <td><b>{{ i.1 }}</b></td>
-                {% endif %}
+
+                <tr>
+                    <td class="current-player">
+                        <a href="{% url 'statistics' user=i.0 %}">
+                            {{ i.0 }}
+                        </a>
+                    </td>
+
+                    {% if i.1 > 0 %}
+                        <td class="record-link">
+                            <a href="{% url 'get_record_html' user=i.0 %}">
+                                {{ i.1 }}
+                            </a>
+                        </td>
+                    {% else %}
+                        <td class="current-player">
+                            {{ i.1 }}
+                        </td>
+                    {% endif %}
+                </tr>
+
             {% else %}
-            <td><a href="{% url 'statistics' user=i.0 %}">{{ i.0 }}</a></td>
-                {% if i.1 > 0 %}
-                <td><a href="{% url 'get_record_html' user=i.0 %}">{{ i.1 }}</a></td>
-                {% else %}
-                <td>{{ i.1 }}</td>
-                {% endif %}
+
+                <tr>
+                    <td>
+                        <a href="{% url 'statistics' user=i.0 %}">
+                            {{ i.0 }}
+                        </a>
+                    </td>
+
+                    {% if i.1 > 0 %}
+                        <td>
+                            <a href="{% url 'get_record_html' user=i.0 %}">
+                                {{ i.1 }}
+                            </a>
+                        </td>
+                    {% else %}
+                        <td>
+                            {{ i.1 }}
+                        </td>
+                    {% endif %}
+                </tr>
+
             {% endif %}
-        </tr>
-            {% endfor %}
-        </table>
-    </div>
-<p><a href="#" onclick="history.back();">Назад</a></p>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <a class="back-link" href="#" onclick="history.back(); return false;">
+        ← Назад
+    </a>
+
+</div>
+
 </body>
 </html>

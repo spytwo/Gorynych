@@ -1,58 +1,110 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
     <script>
-    function confirmAction1(){
-      var confirmed = confirm("Начать новую игру?");
-      return confirmed;
-    }
-    function confirmAction2(){
-      var confirmed = confirm("Вы уверены, что хотите закончить игру?");
-      return confirmed;
-    }
+        function confirmAction1() {
+            return confirm("Начать новую игру?");
+        }
+
+        function confirmAction2() {
+            return confirm("Вы уверены, что хотите закончить игру?");
+        }
     </script>
+
     <title>Горыныч</title>
     <link rel="icon" type="image/png" href="{% static 'img/gor1.png' %}">
+
 </head>
+
 <body>
-    <img src="static/img/gor{{ game.number_user }}.png" width="150">
-    <h3>
-    {% for i in game.deck %}
-        {{ i }}
+
+<div class="game-container">
+
+    <img
+        class="dragon"
+        src="{% static 'img/gor' %}{{ game.number_user }}.png"
+        alt="Горыныч"
+    >
+
+    <div class="deck">
+        {% for i in game.deck %}
+            {{ i }}
         {% endfor %}
-    </h3>
-    <form action="" method="post">{% csrf_token %}
-        <input type="text" name="word" autocomplete="off" autofocus>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <input
+            type="text"
+            name="word"
+            autocomplete="off"
+            autofocus
+            placeholder="Ваше слово"
+        >
+
         {% if res %}
-            <h6><u>{{ res }}</u></h6>
+            <h6>
+                <u>{{ res }}</u>
+            </h6>
         {% endif %}
-        <h6>
-        {% for i in game.players_word_list %}
-            {% if i in game.gorynych_user %}
-                <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #138808">{{ i }}</a>
-            {% elif i in game.words_without_repeating_user %}
-                <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #4285B4">{{ i }}</a>
-            {% else %}
-                <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank">{{ i }}</a>
-            {% endif %}
-        {% endfor %}
-        </h6>
-        <button type="submit" name="add">ДОБАВИТЬ СЛОВО</button><br>
-        <button type="submit" name="cancel">УБРАТЬ СЛОВО</button><br>
-        <button type="submit" name="count">ПОСЧИТАТЬ СЛОВА</button><br>
-        <button type="submit" name="check" onclick="return confirmAction2()">ЗАКОНЧИТЬ ИГРУ</button><br>
-        <button type="submit" name="end" onclick="return confirmAction1()">НОВАЯ ИГРА</button><br>
-        <button type="submit" name="rec">РЕЙТИНГ</button><br>
-        <button type="submit" name="doc">ПРАВИЛА ИГРЫ</button><br>
-        <button type="submit" name="logout">ВЫЙТИ</button>
+
+        <div class="player-words">
+            <div class="words-count">
+                Ваши слова ({{ game.players_word_list|length }})
+            </div>
+            {% for i in game.players_word_list %}
+
+                {% if i in game.gorynych_user %}
+                    <a
+                        class="word-gorynych"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% elif i in game.words_without_repeating_user %}
+                    <a
+                        class="word-long"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% else %}
+                    <a
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+                {% endif %}
+
+            {% endfor %}
+        </div>
+
+        <div class="game-buttons">
+            <button type="submit" name="add">ДОБАВИТЬ СЛОВО</button>
+            <button type="submit" name="cancel">УБРАТЬ СЛОВО</button>
+            <button type="submit" name="check"
+                    onclick="return confirmAction2()">
+                ЗАКОНЧИТЬ ИГРУ
+            </button>
+            <button type="submit" name="end"
+                    onclick="return confirmAction1()">
+                НОВАЯ ИГРА
+            </button>
+            <button type="submit" name="rec">РЕЙТИНГ</button>
+            <button type="submit" name="doc">ПРАВИЛА ИГРЫ</button>
+            <button type="submit" name="logout">ВЫЙТИ</button>
+        </div>
+
     </form>
+
+</div>
+
 </body>
 </html>
-
-

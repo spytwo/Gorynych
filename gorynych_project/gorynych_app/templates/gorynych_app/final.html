@@ -1,57 +1,198 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
     <title>Горыныч</title>
     <link rel="icon" type="image/png" href="{% static 'img/gor1.png' %}">
 </head>
+
 <body>
-    <h3>{% for i in game_2.deck %}
-        {{ i }}
-    {% endfor %}
-    </h3>
-    <p>Ваши слова({{ game_2.players_word_list|length }}):</p>
-    {% for i in game_2.players_word_list %}
-        {% if i in game_2.words_without_repeating_user and i in game_2.words_without_repeating_comp %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #4285B4">{{ i }}</a></b>
-        {% elif i in game_2.words_without_repeating_user %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #4285B4">{{ i }}</a>
-        {% elif i in game_2.gorynych_user and i in game_2.gorynych_comp %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #138808">{{ i }}</a></b>
-        {% elif i in game_2.gorynych_user %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #138808">{{ i }}</a>
-        {% elif i in game_2.final_comp_word_list %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank">{{ i }}</a></b>
-        {% else %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank">{{ i }}</a>
-        {% endif %}
-        {% empty %} Вы не составили ни одного слова
-    {% endfor %}
-    <p>Слова компьютера({{ game_2.final_comp_word_list|length }}):</p>
-    {% for i in game_2.final_comp_word_list %}
-        {% if i in game_2.words_without_repeating_user and i in game_2.words_without_repeating_comp %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #4285B4">{{ i }}</a></b>
-        {% elif i in game_2.words_without_repeating_comp %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #4285B4">{{ i }}</a>
-        {% elif i in game_2.gorynych_comp and i in game_2.gorynych_user %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #138808">{{ i }}</a></b>
-        {% elif i in game_2.gorynych_comp %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank" style="color: #138808">{{ i }}</a>
-        {% elif i in game_2.players_word_list %}
-            <b><a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank">{{ i }}</a></b>
-        {% else %}
-            <a href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42" target="_blank">{{ i }}</a>
-        {% endif %}
-        {% empty %} Компьютер не составил ни одного слова
-    {% endfor %}
-    <h4>{{ game_2.who_won.0 }}</h4>
-    <form action="" method="post">{% csrf_token %}
-        <button type="submit" name="end">НОВАЯ ИГРА</button>
-    </form>
+
+<div class="game-container">
+
+    <div class="deck">
+        {% for i in game_2.deck %}
+            {{ i }}
+        {% endfor %}
+    </div>
+
+
+    <div class="words-section">
+
+        <h2>
+            Ваши слова ({{ game_2.players_word_list|length }})
+        </h2>
+
+        <div class="words">
+
+            {% for i in game_2.players_word_list %}
+
+                {% if i in game_2.final_comp_word_list %}
+
+                    {% if i in game_2.gorynych_user %}
+
+                        <a
+                            class="word-gorynych word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% elif i in game_2.words_without_repeating_user %}
+
+                        <a
+                            class="word-long word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% else %}
+
+                        <a
+                            class="word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% endif %}
+
+                {% elif i in game_2.words_without_repeating_user %}
+
+                    <a
+                        class="word-long"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% elif i in game_2.gorynych_user %}
+
+                    <a
+                        class="word-gorynych"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% else %}
+
+                    <a
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% endif %}
+
+            {% empty %}
+
+                Вы не составили ни одного слова
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <div class="words-section">
+
+        <h2>
+            Слова компьютера ({{ game_2.final_comp_word_list|length }})
+        </h2>
+
+        <div class="words">
+
+            {% for i in game_2.final_comp_word_list %}
+
+                {% if i in game_2.players_word_list %}
+
+                    {% if i in game_2.gorynych_comp %}
+
+                        <a
+                            class="word-gorynych word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% elif i in game_2.words_without_repeating_comp %}
+
+                        <a
+                            class="word-long word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% else %}
+
+                        <a
+                            class="word-common"
+                            href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                            target="_blank"
+                        >{{ i }}</a>
+
+                    {% endif %}
+
+                {% elif i in game_2.words_without_repeating_comp %}
+
+                    <a
+                        class="word-long"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% elif i in game_2.gorynych_comp %}
+
+                    <a
+                        class="word-gorynych"
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% else %}
+
+                    <a
+                        href="https://gramota.ru/poisk?query={{ i|title }}&mode=slovari&dicts[]=42"
+                        target="_blank"
+                    >{{ i }}</a>
+
+                {% endif %}
+
+            {% empty %}
+
+                Компьютер не составил ни одного слова
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <div class="result">
+
+        <h3>
+            {{ game_2.who_won.0 }}
+        </h3>
+
+    </div>
+
+
+    <div class="game-buttons">
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <button type="submit" name="end">
+                НОВАЯ ИГРА
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
 </body>
 </html>

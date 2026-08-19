@@ -1,56 +1,82 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
     <title>Статистика</title>
     <link rel="icon" type="image/png" href="{% static 'img/gor1.png' %}">
+
 </head>
+
 <body>
+
+<div class="statistics-container">
+
     <h1>{{ user }}</h1>
+
     <h2>Статистика игр</h2>
-    <div style="text-align: center;">
-        <table width="330" border="1" cellspacing="0" cellpadding="7" style="display: inline-block;">
+
+    <table class="statistics-table">
+
+        {% for i in stat %}
+
         <tr>
-            {% for i in stat %}
-            <th width="270">Количество игр</th>
-            <th width="60">{{i.number_of_games}}</th>
+            <th>Количество игр</th>
+            <th>{{ i.number_of_games }}</th>
         </tr>
-            <tr>
-            <th width="270">Победы</th>
-            <th width="60">{{i.victory}}</th>
-            </tr>
-            <tr>
-            <th width="270">Ничьи</th>
-            <th width="60">{{i.dead_heat}}</th>
-            </tr>
-            <tr>
-            <th width="270">Поражения</th>
-            <th width="60">{{i.defeat}}</th>
-            </tr>
+
+        <tr>
+            <th>Победы</th>
+            <th>{{ i.victory }}</th>
+        </tr>
+
+        <tr>
+            <th>Ничьи</th>
+            <th>{{ i.dead_heat }}</th>
+        </tr>
+
+        <tr>
+            <th>Поражения</th>
+            <th>{{ i.defeat }}</th>
+        </tr>
+
         {% endfor %}
-        </table>
-        <br>
-        <h2>Рекорды</h2>
-        <table width="330" border="1" cellspacing="0" cellpadding="7" style="display: inline-block;">
-            <tr>
-                <th width="270">Золотой</th>
-                <th width="60">{{ list_rec.0 }}</th>
-            </tr>
-            <tr>
-                <th width="270">Серебряный</th>
-                <th width="60">{{ list_rec.1 }}</th>
-            </tr>
-            <tr>
-                <th width="270">Бронзовый</th>
-                <th width="60">{{ list_rec.2 }}</th>
-            </tr>
-        </table>
-    </div>
-<p><a href="#" onclick="history.back();">Назад</a></p>
+
+    </table>
+
+
+    <h2>Рекорды</h2>
+
+    <table class="statistics-table">
+
+        <tr>
+            <th class="record-gold">Золотой</th>
+            <th class="record-gold">{{ list_rec.0 }}</th>
+        </tr>
+
+        <tr>
+            <th class="record-silver">Серебряный</th>
+            <th class="record-silver">{{ list_rec.1 }}</th>
+        </tr>
+
+        <tr>
+            <th class="record-bronze">Бронзовый</th>
+            <th class="record-bronze">{{ list_rec.2 }}</th>
+        </tr>
+
+    </table>
+
+
+    <a class="back-link" href="#" onclick="history.back(); return false;">
+        ← Назад
+    </a>
+
+</div>
+
 </body>
 </html>
