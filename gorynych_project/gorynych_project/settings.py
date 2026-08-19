@@ -9,6 +9,11 @@ ALLOWED_HOSTS = []
 
 # DEBUG = False
 # ALLOWED_HOSTS = ["filmlibrary.mooo.com", "31.56.28.190"]
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://filmlibrary.mooo.com:8443",
+# ]
+
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
