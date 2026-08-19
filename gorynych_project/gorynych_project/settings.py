@@ -5,13 +5,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-b^*ycx-pdtul#tvzce6946#7@*l5zqxir7ng#dfnn679abatt3"
 
 DEBUG = True
-
-# Для сайта pythonanywhere
-# ALLOWED_HOSTS = ['thegorynych.pythonanywhere.com']
 ALLOWED_HOSTS = []
 
-
-# Application definition
+# DEBUG = False
+# ALLOWED_HOSTS = ["filmlibrary.mooo.com", "31.56.28.190"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -25,6 +22,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -68,14 +66,15 @@ LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
 
+LOGIN_URL = "login"
+
 USE_I18N = True
 
 USE_TZ = True
 
 
 STATIC_URL = "static/"
-# Для сервера на pythonanywhere
-STATIC_ROOT = "/home/thegorynych/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

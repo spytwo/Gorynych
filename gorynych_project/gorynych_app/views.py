@@ -2,8 +2,8 @@ import pickle
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, render
 
 from .forms import UserLoginForm, UserRegForm
@@ -11,13 +11,10 @@ from .models import Record, Statictics, UserGame
 from .service import Words, get_rec
 
 
+@login_required
 def index(request):
     """Главная страница игры."""
-    try:
-        games = UserGame.objects.get(user=request.user)
-    except ObjectDoesNotExist:
-        return redirect("login")
-
+    games = UserGame.objects.get(user=request.user)
     game = pickle.loads(games.game)
 
     if request.method != "POST":
