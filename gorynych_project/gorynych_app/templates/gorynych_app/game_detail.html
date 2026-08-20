@@ -33,7 +33,7 @@
     <div class="words-section">
 
         <h2>
-            Ваши слова ({{ game.players_word_list|length }})
+            Слова игрока ({{ game.players_word_list|length }})
         </h2>
 
         <div class="words">
@@ -184,7 +184,7 @@
         {% if request.user == user %}
             <h3>{{ game.who_won.0 }}</h3>
         {% else %}
-            <h3>{{ user }} {{ game.who_won.1 }}</h3>
+            <h3>{{ user }} : {{ game.who_won.1 }}</h3>
         {% endif %}
 
     </div>
