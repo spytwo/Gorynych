@@ -14,7 +14,12 @@ from .service import Words, get_rec
 @login_required
 def index(request):
     """Главная страница игры."""
-    games = UserGame.objects.get(user=request.user)
+    try:
+        games = UserGame.objects.get(user=request.user)
+    except UserGame.DoesNotExist:
+        logout(request)
+        return redirect("login")
+
     game = pickle.loads(games.game)
 
     if request.method != "POST":
