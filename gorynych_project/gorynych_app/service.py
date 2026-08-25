@@ -118,7 +118,7 @@ class Words:
 
         repeated_letters = sum(letter_counts.values()) - len(letter_counts)
 
-        error = self._check_heads(repeated_letters)
+        error = self._check_heads(word, repeated_letters)
         if error:
             return error
 
@@ -126,8 +126,11 @@ class Words:
 
         return self._get_word_reward(word)
 
-    def _check_heads(self, repeated_letters):
+    def _check_heads(self, word, repeated_letters):
         """Проверяет, хватает ли голов Горыныча для слова."""
+        if self._is_long_word_with_repeats(word, repeated_letters):
+            return None
+
         if self.number_user == 0 and repeated_letters > 0:
             return "Горыныч без голов"
 
@@ -139,11 +142,20 @@ class Words:
     def _add_player_word(self, word, repeated_letters):
         """Добавляет слово игрока и списывает использованные головы."""
         self.temp = repeated_letters
-        self.number_user -= repeated_letters
         self.players_word_list.append(word)
+
+        if self._is_long_word_with_repeats(word, repeated_letters):
+            return
+
+        self.number_user -= repeated_letters
 
         if repeated_letters:
             self.gorynych_user.append(word)
+
+    @staticmethod
+    def _is_long_word_with_repeats(word, repeated_letters):
+        """Проверяет длинное слово с повторяющимися буквами."""
+        return len(word) >= 6 and repeated_letters > 0
 
     def _get_word_reward(self, word):
         """Обрабатывает награду за длинное слово без повторяющихся букв."""
@@ -192,7 +204,7 @@ class Words:
         for word in self.comp_word_list:
             repeated_letters = self._count_repeated_letters(word)
 
-            if not self._can_comp_use_word(repeated_letters):
+            if not self._can_comp_use_word(word, repeated_letters):
                 continue
 
             self._use_comp_heads(word, repeated_letters)
@@ -203,13 +215,21 @@ class Words:
         letter_counts = Counter(word)
         return len(word) - len(letter_counts)
 
-    def _can_comp_use_word(self, repeated_letters):
+    def _can_comp_use_word(self, word, repeated_letters):
+        """Проверяет, может ли компьютер использовать слово."""
+        if self._is_long_word_with_repeats(word, repeated_letters):
+            return True
+
         if self.number_comp == 0 and repeated_letters > 0:
             return False
 
         return self.number_comp >= repeated_letters
 
     def _use_comp_heads(self, word, repeated_letters):
+        """Обрабатывает головы компьютера после использования слова."""
+        if self._is_long_word_with_repeats(word, repeated_letters):
+            return
+
         self.number_comp -= repeated_letters
 
         if repeated_letters:
