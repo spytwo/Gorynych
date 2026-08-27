@@ -46,7 +46,11 @@ def index(request):
 def _render_game(request, game, **context):
     """Рендерит главную страницу игры."""
     context = {"game": game, **context}
-    return render(request, "gorynych_app/index.html", context=context)
+    return render(
+        request,
+        "gorynych_app/index.html",
+        context=context,
+    )
 
 
 def _save_game(games, game):
@@ -58,6 +62,7 @@ def _save_game(games, game):
 def _add_word(request, games, game):
     """Добавляет слово игрока."""
     word = request.POST.get("word", "").upper()
+
     result = game.checking_for_all_letters(word)
 
     _save_game(games, game)
@@ -66,57 +71,23 @@ def _add_word(request, games, game):
 
 
 def _cancel_word(request, games, game):
-    """Удаляет последнее слово игрока."""
-    if game.players_word_list:
-        _restore_heads_after_cancel(game)
-        _remove_last_word(game)
+    """Отменяет последнее слово игрока."""
+    game.undo_last_word()
 
     _save_game(games, game)
 
     return _render_game(request, game)
 
 
-def _restore_heads_after_cancel(game):
-    """Возвращает головы Горыныча после удаления слова."""
-    if len(game.players_word_list) % 20 == 0:
-        game.number_user += game.temp
-        game.players_word_list.pop()
-
-        if game.number_user > 0:
-            game.number_user -= 1
-
-        game.temp = 0
-        return
-
-    last_word = game.players_word_list[-1]
-
-    if (
-        len(last_word) > 5
-        and len(last_word) == len(set(last_word))
-        and (game.number_user == 3 and game.temp == 1 or game.number_user > 0)
-    ):
-        game.number_user -= 1
-
-    game.number_user += game.temp
-
-
-def _remove_last_word(game):
-    """Удаляет последнее слово из всех соответствующих списков."""
-    word = game.players_word_list.pop()
-
-    if word in game.gorynych_user:
-        game.gorynych_user.remove(word)
-
-    if word in game.words_without_repeating_user:
-        game.words_without_repeating_user.remove(word)
-
-    game.temp = 0
-
-
 def _count_words(request, games, game):
     """Показывает количество слов игрока."""
     result = f"Количество ваших слов: {len(game.players_word_list)}"
-    return _render_game(request, game, res=result)
+
+    return _render_game(
+        request,
+        game,
+        res=result,
+    )
 
 
 def _finish_game(request, games, game):
@@ -129,6 +100,7 @@ def _finish_game(request, games, game):
     _update_records(games, game)
 
     result_game = game
+
     _save_record_if_needed(games, game)
 
     games.game = pickle.dumps(Words())
@@ -152,8 +124,10 @@ def _add_remaining_comp_heads(game):
             break
 
         word = available_words.pop()
+
         game.gorynych_comp.append(word)
         game.final_comp_word_list.add(word)
+
         heads_to_add -= 1
 
 
@@ -165,14 +139,15 @@ def _update_records(games, game):
         record.record_1,
         record.record_2,
         record.record_3,
+        len(game.players_word_list),
     ]
 
-    records.append(len(game.players_word_list))
     records.sort(reverse=True)
 
     record.record_1 = records[0]
     record.record_2 = records[1]
     record.record_3 = records[2]
+
     record.save()
 
 
@@ -197,7 +172,7 @@ def _new_game(request, games, game):
 
 
 def _show_rules(request, games, game):
-    """Показывает правила игры."""
+    """Показывает правила."""
     return render(
         request,
         "gorynych_app/rules.html",
@@ -208,6 +183,7 @@ def _show_rules(request, games, game):
 def _logout(request, games, game):
     """Выход пользователя из аккаунта."""
     user_logout(request)
+
     return redirect("login")
 
 
@@ -233,13 +209,21 @@ def register(request):
 
         if form.is_valid():
             user = form.save()
+
             login(request, user)
             _create_user_game_data(user)
 
-            messages.success(request, "Успешная регистрация")
+            messages.success(
+                request,
+                "Успешная регистрация",
+            )
+
             return redirect("index")
 
-        messages.error(request, "Что-то пошло не так")
+        messages.error(
+            request,
+            "Что-то пошло не так",
+        )
     else:
         form = UserRegForm()
 
@@ -268,6 +252,7 @@ def user_login(request):
 
         if form.is_valid():
             login(request, form.get_user())
+
             return redirect("index")
     else:
         form = UserLoginForm()
@@ -280,7 +265,7 @@ def user_login(request):
 
 
 def user_logout(request):
-    """Выход пользователя."""
+    """Выход пользователя из аккаунта."""
     logout(request)
 
 
@@ -305,6 +290,7 @@ def statistics(request, user):
     stat = Statictics.objects.filter(user=user)
 
     records = Record.objects.get(user=user)
+
     top_records = sorted(
         [
             records.record_1,

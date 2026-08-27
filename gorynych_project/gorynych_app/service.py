@@ -69,6 +69,7 @@ def get_rec():
         (game.user, game.record, game.game_for_record)
         for game in UserGame.objects.all()
     ]
+
     return sorted(records, key=lambda record: record[1], reverse=True)
 
 
@@ -80,16 +81,25 @@ def comp_words():
 class Words:
     def __init__(self):
         self.deck = self._create_deck()
+
         self.number_user = MAX_HEADS
         self.number_comp = MAX_HEADS
+
         self.players_word_list = []
         self.comp_word_list = set()
         self.final_comp_word_list = set()
-        self.temp = 0
+
         self.gorynych_user = []
         self.gorynych_comp = []
+
         self.words_without_repeating_user = []
         self.words_without_repeating_comp = []
+
+        # Информация о последнем ходе игрока.
+        # Нужна для корректной отмены последнего слова.
+        self.last_word_repeated_letters = 0
+        self.last_word_spent_heads = 0
+        self.last_word_received_head = False
 
     @staticmethod
     def _create_deck():
@@ -104,6 +114,9 @@ class Words:
         """Проверяет слово игрока и изменяет состояние игры."""
         word = word.strip()
 
+        if not word:
+            return "Введите слово"
+
         if word in self.players_word_list:
             return "Такое слово уже есть"
 
@@ -113,18 +126,28 @@ class Words:
             (letter for letter in word if letter not in self.deck),
             None,
         )
+
         if missing_letter:
             return f'Буквы "{missing_letter}" нет в колоде'
 
         repeated_letters = sum(letter_counts.values()) - len(letter_counts)
 
         error = self._check_heads(word, repeated_letters)
+
         if error:
             return error
+
+        self._reset_last_word_state()
 
         self._add_player_word(word, repeated_letters)
 
         return self._get_word_reward(word)
+
+    def _reset_last_word_state(self):
+        """Сбрасывает информацию о предыдущем ходе."""
+        self.last_word_repeated_letters = 0
+        self.last_word_spent_heads = 0
+        self.last_word_received_head = False
 
     def _check_heads(self, word, repeated_letters):
         """Проверяет, хватает ли голов Горыныча для слова."""
@@ -141,8 +164,10 @@ class Words:
 
     def _add_player_word(self, word, repeated_letters):
         """Добавляет слово игрока и списывает использованные головы."""
-        self.temp = repeated_letters
         self.players_word_list.append(word)
+
+        self.last_word_repeated_letters = repeated_letters
+        self.last_word_spent_heads = repeated_letters
 
         if self._is_long_word_with_repeats(word, repeated_letters):
             return
@@ -158,23 +183,31 @@ class Words:
         return len(word) >= 6 and repeated_letters > 0
 
     def _get_word_reward(self, word):
-        """Обрабатывает награду за длинное слово без повторяющихся букв."""
-        if self.temp != 0:
+        """Обрабатывает награды за слово."""
+        # Если за слово были потрачены головы,
+        # обычная награда за длину/количество слов не выдаётся.
+        if self.last_word_repeated_letters != 0:
             return None
 
+        # Длинное слово без повторяющихся букв.
         if len(word) > LONG_WORD_LENGTH:
             self.words_without_repeating_user.append(word)
 
             if self.number_user == MAX_HEADS:
-                self.temp = 1
                 return self._no_head_reward()
 
             self.number_user += 1
+            self.last_word_received_head = True
+
             return self._head_reward()
 
+        # Каждые 20 слов игрок получает голову,
+        # если у него ещё не максимальное количество голов.
         if len(self.players_word_list) % WORDS_FOR_HEAD == 0:
             if self.number_user < MAX_HEADS:
                 self.number_user += 1
+                self.last_word_received_head = True
+
                 return "Вы вернули одну голову"
 
         return None
@@ -190,6 +223,33 @@ class Words:
             f"{random.choice(THIRD_PHRASES)} "
             f"{random.choice(FOURTH_PHRASES)}"
         )
+
+    def undo_last_word(self):
+        """Отменяет последний ход игрока."""
+        if not self.players_word_list:
+            return
+
+        word = self.players_word_list[-1]
+
+        # Возвращаем голову, если она была получена за это слово.
+        if self.last_word_received_head:
+            self.number_user -= 1
+
+        # Возвращаем головы, потраченные на повторяющиеся буквы.
+        self.number_user += self.last_word_spent_heads
+
+        # Удаляем слово из списка слов Горыныча.
+        if word in self.gorynych_user:
+            self.gorynych_user.remove(word)
+
+        # Удаляем слово из списка длинных слов без повторений.
+        if word in self.words_without_repeating_user:
+            self.words_without_repeating_user.remove(word)
+
+        # И только здесь удаляем само слово.
+        self.players_word_list.pop()
+
+        self._reset_last_word_state()
 
     def words_of_comp(self):
         """Первая проверка слов компьютера."""
