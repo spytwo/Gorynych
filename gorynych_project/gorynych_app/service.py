@@ -167,11 +167,12 @@ class Words:
         self.players_word_list.append(word)
 
         self.last_word_repeated_letters = repeated_letters
-        self.last_word_spent_heads = repeated_letters
+        self.last_word_spent_heads = 0
 
         if self._is_long_word_with_repeats(word, repeated_letters):
             return
 
+        self.last_word_spent_heads = repeated_letters
         self.number_user -= repeated_letters
 
         if repeated_letters:
